@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Nagaraj S — .NET Developer</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d0f14;
+    --bg2: #131720;
+    --bg3: #1a2030;
+    --accent: #00e5c3;
+    --accent2: #7b61ff;
+    --gold: #f0c060;
+    --text: #eef0f6;
+    --text2: #8b93b0;
+    --text3: #4e566d;
+    --border: rgba(255,255,255,0.07);
+    --card-bg: rgba(255,255,255,0.03);
+    --font-display: 'Playfair Display', serif;
+    --font-body: 'DM Sans', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ===== NOISE OVERLAY ===== */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+  }
+
+  /* ===== GRID BG ===== */
+  .grid-bg {
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,195,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,195,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ===== GLOW BLOBS ===== */
+  .blob {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .blob-1 { width: 600px; height: 600px; background: rgba(0,229,195,0.06); top: -200px; right: -150px; }
+  .blob-2 { width: 500px; height: 500px; background: rgba(123,97,255,0.07); bottom: 10%; left: -150px; }
+  .blob-3 { width: 300px; height: 300px; background: rgba(240,192,96,0.05); top: 50%; left: 40%; }
+
+  /* ===== NAV ===== */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 1.2rem 4rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(13,15,20,0.8);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: -0.5px;
+  }
+
+  .nav-links { display: flex; gap: 2.5rem; }
+  .nav-links a {
+    color: var(--text2);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--accent); }
+
+  /* ===== SECTIONS ===== */
+  section { position: relative; z-index: 1; }
+
+  /* ===== HERO ===== */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 8rem 4rem 6rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .hero-content { max-width: 720px; }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(0,229,195,0.08);
+    border: 1px solid rgba(0,229,195,0.2);
+    color: var(--accent);
+    font-size: 0.78rem;
+    font-family: var(--font-mono);
+    letter-spacing: 0.1em;
+    padding: 0.4rem 1rem;
+    border-radius: 999px;
+    margin-bottom: 2rem;
+    animation: fadeSlideUp 0.6s ease both;
+  }
+
+  .badge-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  .hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 6vw, 5.5rem);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -2px;
+    margin-bottom: 0.5rem;
+    animation: fadeSlideUp 0.7s 0.1s ease both;
+  }
+
+  .hero h1 .highlight {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-role {
+    font-family: var(--font-mono);
+    font-size: 1.1rem;
+    color: var(--gold);
+    margin-bottom: 1.5rem;
+    animation: fadeSlideUp 0.7s 0.2s ease both;
+  }
+
+  .hero-desc {
+    color: var(--text2);
+    font-size: 1.05rem;
+    max-width: 580px;
+    margin-bottom: 3rem;
+    animation: fadeSlideUp 0.7s 0.3s ease both;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    animation: fadeSlideUp 0.7s 0.4s ease both;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--accent);
+    color: #0d0f14;
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 0.85rem 2rem;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.2s;
+    border: none;
+    cursor: pointer;
+  }
+  .btn-primary:hover { background: #00c9ac; transform: translateY(-2px); }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: transparent;
+    color: var(--text);
+    font-weight: 500;
+    font-size: 0.9rem;
+    padding: 0.85rem 2rem;
+    border-radius: 8px;
+    text-decoration: none;
+    border: 1px solid var(--border);
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .btn-secondary:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); }
+
+  /* stats strip */
+  .hero-stats {
+    position: absolute;
+    right: 4rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    animation: fadeSlideUp 0.7s 0.5s ease both;
+  }
+
+  .stat-item { text-align: center; }
+  .stat-num {
+    font-family: var(--font-display);
+    font-size: 2.8rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 0.72rem;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: 0.25rem;
+  }
+
+  .stat-divider { width: 1px; height: 40px; background: var(--border); margin: 0 auto; }
+
+  /* ===== CONTAINER ===== */
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 4rem; }
+
+  /* ===== SECTION TITLE ===== */
+  .section-header { margin-bottom: 3.5rem; }
+  .section-tag {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 3.5vw, 2.8rem);
+    font-weight: 700;
+    letter-spacing: -1px;
+    color: var(--text);
+  }
+
+  /* ===== ABOUT ===== */
+  .about { padding: 7rem 0; }
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6rem;
+    align-items: start;
+  }
+
+  .about-text p {
+    color: var(--text2);
+    margin-bottom: 1.25rem;
+    font-size: 1rem;
+  }
+
+  .about-text p strong { color: var(--text); font-weight: 600; }
+
+  .about-info { display: flex; flex-direction: column; gap: 1.5rem; }
+
+  .info-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .info-card:hover { border-color: rgba(0,229,195,0.2); background: rgba(0,229,195,0.04); }
+
+  .info-icon {
+    width: 42px; height: 42px;
+    border-radius: 10px;
+    background: rgba(0,229,195,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 1.2rem;
+  }
+
+  .info-label { font-size: 0.75rem; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; }
+  .info-value { font-weight: 500; color: var(--text); font-size: 0.95rem; }
+
+  /* ===== SKILLS ===== */
+  .skills { padding: 7rem 0; background: linear-gradient(180deg, transparent, rgba(26,32,48,0.5) 50%, transparent); }
+
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .skill-category {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.75rem;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .skill-category::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .skill-category.teal::before { background: linear-gradient(90deg, var(--accent), transparent); }
+  .skill-category.purple::before { background: linear-gradient(90deg, var(--accent2), transparent); }
+  .skill-category.gold::before { background: linear-gradient(90deg, var(--gold), transparent); }
+
+  .skill-category:hover { border-color: rgba(255,255,255,0.15); transform: translateY(-3px); }
+  .skill-category:hover::before { opacity: 1; }
+
+  .skill-cat-icon { font-size: 1.8rem; margin-bottom: 0.75rem; }
+  .skill-cat-name { font-weight: 600; font-size: 1rem; margin-bottom: 1.25rem; color: var(--text); }
+
+  .skill-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .skill-tag {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 6px;
+    font-weight: 500;
+    border: 1px solid;
+  }
+  .skill-tag.teal { background: rgba(0,229,195,0.08); border-color: rgba(0,229,195,0.2); color: var(--accent); }
+  .skill-tag.purple { background: rgba(123,97,255,0.08); border-color: rgba(123,97,255,0.2); color: #a08bff; }
+  .skill-tag.gold { background: rgba(240,192,96,0.08); border-color: rgba(240,192,96,0.2); color: var(--gold); }
+
+  /* ===== EXPERIENCE ===== */
+  .experience { padding: 7rem 0; }
+
+  .exp-timeline { position: relative; }
+  .exp-timeline::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0; bottom: 0;
+    width: 1px;
+    background: linear-gradient(180deg, var(--accent), var(--accent2), transparent);
+  }
+
+  .exp-item {
+    padding-left: 3rem;
+    margin-bottom: 3.5rem;
+    position: relative;
+  }
+
+  .exp-item::before {
+    content: '';
+    position: absolute;
+    left: -5px;
+    top: 6px;
+    width: 11px; height: 11px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 12px rgba(0,229,195,0.5);
+  }
+
+  .exp-header { margin-bottom: 0.75rem; }
+  .exp-period {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--accent);
+    margin-bottom: 0.4rem;
+  }
+  .exp-role { font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; color: var(--text); }
+  .exp-company {
+    font-size: 0.9rem;
+    color: var(--text2);
+    margin-top: 0.2rem;
+  }
+  .exp-company span { color: var(--gold); font-weight: 500; }
+
+  .exp-desc {
+    color: var(--text2);
+    font-size: 0.9rem;
+    line-height: 1.7;
+    margin-top: 0.75rem;
+    max-width: 680px;
+  }
+
+  /* ===== PROJECTS ===== */
+  .projects { padding: 7rem 0; background: linear-gradient(180deg, transparent, rgba(26,32,48,0.4) 50%, transparent); }
+
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .project-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .project-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at top right, rgba(0,229,195,0.04), transparent 70%);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .project-card:hover { border-color: rgba(0,229,195,0.2); transform: translateY(-4px); }
+  .project-card:hover::after { opacity: 1; }
+
+  .project-number {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text3);
+    letter-spacing: 0.1em;
+  }
+
+  .project-name {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  .project-company {
+    font-size: 0.78rem;
+    color: var(--accent);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .project-desc { color: var(--text2); font-size: 0.88rem; line-height: 1.7; flex: 1; }
+
+  .project-stack { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem; }
+  .stack-tag {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    color: var(--text3);
+  }
+
+  /* ===== CONTACT ===== */
+  .contact { padding: 7rem 0 8rem; }
+
+  .contact-inner {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 4rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .contact-inner::before {
+    content: '';
+    position: absolute;
+    top: -60px; left: 50%;
+    transform: translateX(-50%);
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,229,195,0.08), transparent 70%);
+    pointer-events: none;
+  }
+
+  .contact-inner h2 {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 900;
+    letter-spacing: -1px;
+    margin-bottom: 1rem;
+  }
+  .contact-inner p { color: var(--text2); max-width: 480px; margin: 0 auto 2.5rem; }
+
+  .contact-links { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
+  .contact-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.85rem 1.75rem;
+    border-radius: 10px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: all 0.2s;
+    border: 1px solid var(--border);
+    color: var(--text);
+    background: rgba(255,255,255,0.04);
+  }
+  .contact-link:hover { border-color: rgba(0,229,195,0.3); color: var(--accent); background: rgba(0,229,195,0.06); }
+  .contact-link .icon { font-size: 1.1rem; }
+
+  /* ===== FOOTER ===== */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 2rem 4rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+  }
+  footer p { font-size: 0.8rem; color: var(--text3); }
+  footer span { color: var(--accent); }
+
+  /* ===== ANIMATIONS ===== */
+  @keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.65s ease, transform 0.65s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ===== SCROLLBAR ===== */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 900px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+    .hero { padding: 7rem 1.5rem 4rem; flex-direction: column; }
+    .hero-stats { position: static; transform: none; flex-direction: row; margin-top: 3rem; }
+    .stat-divider { width: 40px; height: 1px; margin: auto 0; }
+    .container { padding: 0 1.5rem; }
+    .about-grid { grid-template-columns: 1fr; gap: 3rem; }
+    .contact-inner { padding: 2.5rem 1.5rem; }
+    footer { flex-direction: column; gap: 0.5rem; text-align: center; padding: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+<div class="blob blob-3"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">NS</div>
+  <div class="nav-links">
+    <a href="#about">About</a>
+    <a href="#skills">Skills</a>
+    <a href="#experience">Experience</a>
+    <a href="#projects">Projects</a>
+    <a href="#contact">Contact</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div style="position:relative;z-index:1;">
+  <div class="hero" style="position:relative;">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        Available for opportunities
+      </div>
+      <h1>
+        Nagaraj <span class="highlight">S.</span>
+      </h1>
+      <div class="hero-role">// Senior .NET Developer</div>
+      <p class="hero-desc">
+        Crafting robust, scalable web solutions for 11+ years — from enterprise asset management systems to travel platforms, with deep expertise in the Microsoft stack.
+      </p>
+      <div class="hero-actions">
+        <a href="#projects" class="btn-primary">View Projects →</a>
+        <a href="#contact" class="btn-secondary">Get in Touch</a>
+      </div>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <div class="stat-num">11+</div>
+        <div class="stat-label">Years<br>Experience</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <div class="stat-num">5</div>
+        <div class="stat-label">Major<br>Projects</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <div class="stat-num">3</div>
+        <div class="stat-label">Companies</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section class="about" id="about">
+  <div class="container">
+    <div class="about-grid">
+      <div class="about-text reveal">
+        <div class="section-header">
+          <div class="section-tag">About me</div>
+          <h2 class="section-title">Building software<br>that actually works</h2>
+        </div>
+        <p>
+          I'm a <strong>Senior .NET Developer</strong> based in Chennai, with over a decade of experience building production-grade web applications across industries including logistics, healthcare, travel, and retail.
+        </p>
+        <p>
+          My expertise spans the full Microsoft web stack — from <strong>ASP.NET Core</strong> and <strong>Web APIs</strong> to <strong>Entity Framework</strong> and <strong>SQL Server</strong> — complemented by modern frontend work in <strong>Angular</strong> and responsive UI design with Bootstrap.
+        </p>
+        <p>
+          I've worked on integrating <strong>payment gateways</strong> (CCAvenue, Razorpay), building REST services, and delivering Agile projects end-to-end. I pride myself on understanding business requirements quickly and communicating clearly with clients.
+        </p>
+      </div>
+      <div class="about-info reveal">
+        <div class="info-card">
+          <div class="info-icon">📍</div>
+          <div>
+            <div class="info-label">Location</div>
+            <div class="info-value">Chennai, Tamil Nadu, India</div>
+          </div>
+        </div>
+        <div class="info-card">
+          <div class="info-icon">📧</div>
+          <div>
+            <div class="info-label">Email</div>
+            <div class="info-value">nagarajsvk@gmail.com</div>
+          </div>
+        </div>
+        <div class="info-card">
+          <div class="info-icon">📱</div>
+          <div>
+            <div class="info-label">Phone</div>
+            <div class="info-value">+91-9498446244</div>
+          </div>
+        </div>
+        <div class="info-card">
+          <div class="info-icon">🎓</div>
+          <div>
+            <div class="info-label">Education</div>
+            <div class="info-value">B.Tech IT — Kalasalingam University (2013)</div>
+          </div>
+        </div>
+        <div class="info-card">
+          <div class="info-icon">⚙️</div>
+          <div>
+            <div class="info-label">Methodology</div>
+            <div class="info-value">Agile / Scrum</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section class="skills" id="skills">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-tag">Technical skills</div>
+      <h2 class="section-title">What I work with</h2>
+    </div>
+    <div class="skills-grid">
+      <div class="skill-category teal reveal">
+        <div class="skill-cat-icon">🖥️</div>
+        <div class="skill-cat-name">Backend Development</div>
+        <div class="skill-tags">
+          <span class="skill-tag teal">C#</span>
+          <span class="skill-tag teal">.NET Core</span>
+          <span class="skill-tag teal">ASP.NET MVC</span>
+          <span class="skill-tag teal">Web API</span>
+          <span class="skill-tag teal">Entity Framework</span>
+          <span class="skill-tag teal">LINQ</span>
+          <span class="skill-tag teal">ADO.NET</span>
+          <span class="skill-tag teal">Web Services</span>
+        </div>
+      </div>
+      <div class="skill-category purple reveal">
+        <div class="skill-cat-icon">🎨</div>
+        <div class="skill-cat-name">Frontend Development</div>
+        <div class="skill-tags">
+          <span class="skill-tag purple">Angular 8</span>
+          <span class="skill-tag purple">JavaScript</span>
+          <span class="skill-tag purple">jQuery</span>
+          <span class="skill-tag purple">HTML5</span>
+          <span class="skill-tag purple">CSS3</span>
+          <span class="skill-tag purple">Bootstrap</span>
+          <span class="skill-tag purple">AJAX</span>
+          <span class="skill-tag purple">JSON</span>
+          <span class="skill-tag purple">Ionic 3</span>
+        </div>
+      </div>
+      <div class="skill-category gold reveal">
+        <div class="skill-cat-icon">🗄️</div>
+        <div class="skill-cat-name">Database & Integrations</div>
+        <div class="skill-tags">
+          <span class="skill-tag gold">SQL Server</span>
+          <span class="skill-tag gold">REST APIs</span>
+          <span class="skill-tag gold">CCAvenue</span>
+          <span class="skill-tag gold">Razorpay</span>
+          <span class="skill-tag gold">Razor Engine</span>
+          <span class="skill-tag gold">Adobe Illustrator Script</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section class="experience" id="experience">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-tag">Career history</div>
+      <h2 class="section-title">Where I've worked</h2>
+    </div>
+    <div class="exp-timeline">
+      <div class="exp-item reveal">
+        <div class="exp-period">MAY 2021 — PRESENT</div>
+        <div class="exp-role">Senior Software Engineer</div>
+        <div class="exp-company">@ <span>Relevantz Technology Services</span> · Chennai</div>
+        <div class="exp-desc">
+          Leading development of the Auto Data Label platform — a web-based system for generating VIN stickers and vehicle information labels. Working with .NET Core, SQL Server, and Adobe Illustrator scripting for automated label generation via content replacement techniques.
+        </div>
+      </div>
+      <div class="exp-item reveal">
+        <div class="exp-period">OCT 2020 — APR 2021</div>
+        <div class="exp-role">Assistant Manager — IT</div>
+        <div class="exp-company">@ <span>Apollo Pharmacies Ltd</span> · Chennai</div>
+        <div class="exp-desc">
+          Managed IT operations and software development initiatives at one of India's leading pharmacy retail chains. Bridged business and technical requirements in a fast-paced retail environment.
+        </div>
+      </div>
+      <div class="exp-item reveal">
+        <div class="exp-period">APR 2015 — SEP 2020</div>
+        <div class="exp-role">Senior Software Engineer</div>
+        <div class="exp-company">@ <span>Hermes I Tickets Pvt Ltd</span> · Chennai</div>
+        <div class="exp-desc">
+          Built and maintained travel portals including TheSmartShop — a multi-service booking platform for flights, buses, hotels, and bill payments. Developed mobile-friendly experiences using Ionic/Angular and integrated payment gateways including CCAvenue and Razorpay.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section class="projects" id="projects">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-tag">Selected work</div>
+      <h2 class="section-title">Key projects</h2>
+    </div>
+    <div class="projects-grid">
+      <div class="project-card reveal">
+        <div class="project-number">01 / Relevantz Technology Services</div>
+        <div class="project-name">Auto Data Labels</div>
+        <div class="project-company">Vehicle Label System</div>
+        <div class="project-desc">Web-based platform for generating replacement VIN stickers, tire pressure labels, and vehicle information labels for all vehicle years, makes, and models. Automated label generation via Adobe Illustrator scripting and content replacement.</div>
+        <div class="project-stack">
+          <span class="stack-tag">.NET Core</span>
+          <span class="stack-tag">SQL Server</span>
+          <span class="stack-tag">Entity Framework</span>
+          <span class="stack-tag">REST API</span>
+          <span class="stack-tag">Adobe Illustrator Script</span>
+        </div>
+      </div>
+      <div class="project-card reveal">
+        <div class="project-number">02 / McKesson Corp</div>
+        <div class="project-name">OneTrack</div>
+        <div class="project-company">Healthcare Asset Management</div>
+        <div class="project-desc">Web-based asset management and tracking system helping medical care providers manage their fleet of medical equipment and accessories accurately and efficiently. Built RESTful services with optimized async data transfer for high performance.</div>
+        <div class="project-stack">
+          <span class="stack-tag">ASP.NET MVC</span>
+          <span class="stack-tag">C#</span>
+          <span class="stack-tag">Web API</span>
+          <span class="stack-tag">AJAX</span>
+          <span class="stack-tag">jQuery</span>
+          <span class="stack-tag">Bootstrap</span>
+        </div>
+      </div>
+      <div class="project-card reveal">
+        <div class="project-number">03 / Hermes I Tickets</div>
+        <div class="project-name">TheSmartShop</div>
+        <div class="project-company">Travel & Booking Portal</div>
+        <div class="project-desc">Agent-friendly multi-service travel portal enabling bookings for flights, buses, hotels, mobile recharges, and bill payments. Developed responsive mobile application using Ionic/Angular framework with full payment gateway integration.</div>
+        <div class="project-stack">
+          <span class="stack-tag">C# .NET</span>
+          <span class="stack-tag">Angular 4</span>
+          <span class="stack-tag">Ionic 3</span>
+          <span class="stack-tag">SQL</span>
+          <span class="stack-tag">ADO.NET</span>
+        </div>
+      </div>
+      <div class="project-card reveal">
+        <div class="project-number">04 / Hermes I Tickets</div>
+        <div class="project-name">GetMyTrip</div>
+        <div class="project-company">Travel Portal</div>
+        <div class="project-desc">Agent-focused travel portal for flight, bus, hotel, and mobile booking. Implemented advanced AJAX controls including Update Panel, Progress Bars, and Model Popup Containers for seamless user interaction and cross-browser compatibility.</div>
+        <div class="project-stack">
+          <span class="stack-tag">ASP.NET 4.0</span>
+          <span class="stack-tag">C#</span>
+          <span class="stack-tag">jQuery</span>
+          <span class="stack-tag">Bootstrap</span>
+          <span class="stack-tag">ADO.NET</span>
+        </div>
+      </div>
+      <div class="project-card reveal">
+        <div class="project-number">05 / travelmall.co.in</div>
+        <div class="project-name">TravelMall</div>
+        <div class="project-company">B2C Travel Platform</div>
+        <div class="project-desc">Full-featured B2C travel platform offering flights, buses, hotels, and holiday packages. Implemented MVC design pattern with Razor Engine, AngularJS, and Angular Material for a rich, maintainable frontend architecture.</div>
+        <div class="project-stack">
+          <span class="stack-tag">ASP.NET MVC</span>
+          <span class="stack-tag">AngularJS</span>
+          <span class="stack-tag">Angular Material</span>
+          <span class="stack-tag">Razor</span>
+          <span class="stack-tag">SQL</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact" id="contact">
+  <div class="container">
+    <div class="contact-inner reveal">
+      <div class="section-tag" style="margin-bottom:1rem;">Let's connect</div>
+      <h2>Ready to build something<br><span class="highlight">great together?</span></h2>
+      <p>Whether you have a project in mind or just want to talk .NET — my inbox is always open.</p>
+      <div class="contact-links">
+        <a href="mailto:nagarajsvk@gmail.com" class="contact-link">
+          <span class="icon">✉️</span>
+          nagarajsvk@gmail.com
+        </a>
+        <a href="tel:+919498446244" class="contact-link">
+          <span class="icon">📞</span>
+          +91 94984 46244
+        </a>
+        <a href="https://www.linkedin.com/in/nagaraj-s" class="contact-link" target="_blank">
+          <span class="icon">💼</span>
+          LinkedIn
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2025 <span>Nagaraj S.</span> — Senior .NET Developer, Chennai</p>
+  <p style="font-size:0.75rem;">Built with passion &amp; 11 years of .NET expertise</p>
+</footer>
+
+<script>
+  const reveals = document.querySelectorAll('.reveal');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+        obs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
